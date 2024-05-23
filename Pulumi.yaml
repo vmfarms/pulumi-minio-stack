@@ -1,0 +1,10 @@
+name: pulumi-s3-python
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: A minimal Minio Python Pulumi program
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: ""

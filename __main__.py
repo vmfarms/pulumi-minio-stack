@@ -12,6 +12,13 @@ config = pulumi.Config()
 serviceName = config.require("Name")
 serviceNamespace = config.require("Namespace")
 
+
+secret_labels = {
+  "epinio.io/configuration": "true",
+  "epinio.io/configuration-origin": serviceName,
+  "epinio.io/configuration-type": "service"
+}
+
 user = minio.IamUser(f"minio-iam-user",
                      name=f"{serviceNamespace}-{serviceName}",
                      force_destroy=True)
@@ -64,7 +71,8 @@ service_account = minio.IamServiceAccount("service-account",
 service_account_secret = Secret("service-account-secret",
                                 metadata=ObjectMetaArgs(
                                   name=f"{serviceNamespace}-{serviceName}-secret",
-                                  namespace="default"),
+                                  namespace=serviceNamespace,
+                                  labels=secret_labels),
                                 string_data = {
                                   "ACCESS_KEY": service_account.access_key,
                                   "SECRET_KEY": service_account.secret_key

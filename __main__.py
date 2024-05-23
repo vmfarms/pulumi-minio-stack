@@ -15,24 +15,24 @@ bucket = minio.S3Bucket("minio-test-bucket",
 iam_policy = minio.IamPolicy("minio-test-policy",
                              name="minio-test-policy",
                              policy="""{
-                              "Version":"2012-10-17",
-                              "Statement": [
-                                {
-                                  "Sid":"ListAllBucket",
-                                  "Effect": "Allow",
-                                  "Action": [
-                                    "s3:ListBucket",
-                                    "s3:PutObject",
-                                    "s3:GetObject",
-                                    "s3:DeleteObject"
-                                  ],
-                                  "Principal":"*",
-                                  "Resource": [
-                                    "{}",
-                                    "{}/*"
-                                    ]"
-                                }
-                              ]
+  "Version":"2012-10-17",
+  "Statement": [
+    {
+      "Sid":"ListAllBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Principal":"*",
+      "Resource": [
+        "{}",
+        "{}/*"
+        ]"
+    }
+  ]
 }""".format(bucket.arn, bucket.arn))
 
 iam_user_policy_attachment = minio.IamUserPolicyAttachment("minio-test-user-policy",

@@ -1,2 +1,4 @@
+encryptionsalt: v1:ss69B0M6OY4=:v1:/q3Xi29xmhIR+Nks:dNI1exbD7H/n+I1Hy7/ruHkyRWshvw==
 config:
   aws:region: us-east-1
+  name: Test

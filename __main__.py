@@ -28,7 +28,7 @@ user = minio.IamUser(f"minio-iam-user",
                      force_destroy=True)
 
 bucket = minio.S3Bucket(f"minio-s3-bucket",
-                        bucket=f"{serviceNamespace}-{serviceName}")
+                        bucket=f"{serviceNamespace}-{releaseName}")
 
 pulumi.export("bucket_arn",bucket.arn)
 

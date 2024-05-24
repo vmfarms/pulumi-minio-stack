@@ -74,7 +74,7 @@ service_account = minio.IamServiceAccount("service-account",
 
 service_account_secret = Secret("service-account-secret",
                                 metadata=ObjectMetaArgs(
-                                  name=f"{serviceNamespace}-{serviceName}-secret",
+                                  name=f"{releaseName}-minio",
                                   namespace=serviceNamespace,
                                   labels=secret_labels),
                                 string_data = {
@@ -83,3 +83,5 @@ service_account_secret = Secret("service-account-secret",
                                 }
                                 )
 
+
+pulumi.export("secret_name",service_account_secret.metadata)

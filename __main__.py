@@ -11,12 +11,16 @@ config = pulumi.Config()
 
 serviceName = config.require("Name")
 serviceNamespace = config.require("Namespace")
+releaseName = config.require("ReleaseName")
 
 
 secret_labels = {
   "epinio.io/configuration": "true",
   "epinio.io/configuration-origin": serviceName,
-  "epinio.io/configuration-type": "service"
+  "epinio.io/configuration-type": "service",
+  "app.kubernetes.io/instance": releaseName,
+  "app.kubernetes.io/managed-by": "pulumi",
+  "app.kubernetes.io/name": "minio-bucket"
 }
 
 user = minio.IamUser(f"minio-iam-user",

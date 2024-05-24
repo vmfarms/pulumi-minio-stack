@@ -84,4 +84,4 @@ service_account_secret = Secret("service-account-secret",
                                 )
 
 
-pulumi.export("secret_name",service_account_secret.metadata)
+pulumi.export("secret_name",service_account_secret.metadata["name"])

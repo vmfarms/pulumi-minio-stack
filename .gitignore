@@ -2,3 +2,5 @@
 venv/
 k8s/*
 test.yaml
+
+*.stack.yaml

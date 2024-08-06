@@ -46,8 +46,8 @@ def iam_user_policy(bucket_arn):
             # TODO: set the right principal here
             "Principal":"*",
             "Resource": [
-              f"{args[0]}",
-              f"{args[0]}/*"
+              f"arn:aws:s3:::{args[0]}",
+              f"arn:aws:s3:::{args[0]}/*"
               ]
           }
         ]

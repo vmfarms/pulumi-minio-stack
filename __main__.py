@@ -29,34 +29,58 @@ bucket = minio.S3Bucket(f"minio-s3-bucket", bucket=f"{serviceNamespace}-{release
 
 pulumi.export("bucket_arn",bucket.arn)
 
-def iam_user_policy(bucket_arn):
-  return pulumi.Output.all(bucket_arn).apply(
+def iam_user_policy(bucket_arn, principal_arn):
+  return pulumi.Output.all(bucket_arn, principal_arn).apply(
     lambda args: json.dumps(
       {
         "Version":"2012-10-17",
         "Statement": [
           {
-            "Sid":"ListAllBucket",
+            "Sid":"FullControl",
             "Effect": "Allow",
             "Action": [
-              "s3:ListBucket",
-              "s3:PutObject",
-              "s3:GetObject",
-              "s3:DeleteObject"
+              "s3:*",
             ],
-            "Principal":"*",
+            "Principal": args[1],
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"
-              ]
+            ]
           }
         ]
       }
     )
   )
 
-def iam_user_policy_ro(bucket_arn):
-  return pulumi.Output.all(bucket_arn).apply(
+def bucket_policy_public(bucket_arn, principal_arn):
+  return pulumi.Output.all(bucket_arn, principal_arn).apply(
+    lambda args: json.dumps(
+      {
+        "Version":"2012-10-17",
+        "Statement": [
+          {
+            "Sid":"RoBucket",
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*",
+                "s3:Describe*",
+                "s3:PutObject", 
+                "s3:DeleteObject"
+            ],
+            "Principal": args[1],
+            "Resource": [
+              f"arn:aws:s3:::{args[0]}",
+              f"arn:aws:s3:::{args[0]}/*"
+            ]
+          }
+        ]
+      }
+    )
+  )
+
+def bucket_policy_ro(bucket_arn, principal_arn):
+  return pulumi.Output.all(bucket_arn, principal_arn).apply(
     lambda args: json.dumps(
       {
         "Version":"2012-10-17",
@@ -69,7 +93,7 @@ def iam_user_policy_ro(bucket_arn):
                 "s3:List*",
                 "s3:Describe*",
             ],
-            "Principal":"*",
+            "Principal": args[1],
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"
@@ -84,12 +108,12 @@ match policy:
     case "public":
         s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
                                                         bucket=bucket.bucket,
-                                                        policy=bucket.bucket.apply(iam_user_policy)
+                                                        policy=bucket.bucket.apply(bucket_policy_public)
                                                        )
     case "readonly":
         s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
                                                         bucket=bucket.bucket,
-                                                        policy=bucket.bucket.apply(iam_user_policy_ro)
+                                                        policy=bucket.bucket.apply(bucket_policy_ro)
                                                        )
 
 iam_policy = minio.IamPolicy("minio-iam-policy",

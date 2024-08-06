@@ -57,8 +57,9 @@ def iam_user_policy(bucket_arn):
   )
 
 s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
-    bucket=bucket.arn,
-    policy=acl)
+                                                bucket=bucket.bucket,
+                                                policy=bucket.bucket.apply(iam_user_policy)
+                                               )
 
 iam_policy = minio.IamPolicy("minio-iam-policy",
                              name=f"{serviceNamespace}-{serviceName}",

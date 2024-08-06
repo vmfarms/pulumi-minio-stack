@@ -12,6 +12,7 @@ config = pulumi.Config()
 serviceName = config.require("Name")
 serviceNamespace = config.require("Namespace")
 releaseName = config.require("ReleaseName")
+policy = config.require("Policy")
 
 secret_labels = {
   "epinio.io/configuration": "true",
@@ -43,7 +44,6 @@ def iam_user_policy(bucket_arn):
               "s3:GetObject",
               "s3:DeleteObject"
             ],
-            # TODO: set the right principal here
             "Principal":"*",
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
@@ -55,10 +55,42 @@ def iam_user_policy(bucket_arn):
     )
   )
 
-s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
-                                                bucket=bucket.bucket,
-                                                policy=bucket.bucket.apply(iam_user_policy)
-                                               )
+def iam_user_policy_ro(bucket_arn):
+  return pulumi.Output.all(bucket_arn).apply(
+    lambda args: json.dumps(
+      {
+        "Version":"2012-10-17",
+        "Statement": [
+          {
+            "Sid":"ListAllBucket",
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*",
+                "s3:Describe*",
+            ],
+            "Principal":"*",
+            "Resource": [
+              f"arn:aws:s3:::{args[0]}",
+              f"arn:aws:s3:::{args[0]}/*"
+              ]
+          }
+        ]
+      }
+    )
+  )
+
+match policy:
+    case "public":
+        s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
+                                                        bucket=bucket.bucket,
+                                                        policy=bucket.bucket.apply(iam_user_policy)
+                                                       )
+    case "readonly":
+        s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
+                                                        bucket=bucket.bucket,
+                                                        policy=bucket.bucket.apply(iam_user_policy_ro)
+                                                       )
 
 iam_policy = minio.IamPolicy("minio-iam-policy",
                              name=f"{serviceNamespace}-{serviceName}",

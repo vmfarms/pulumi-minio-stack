@@ -104,17 +104,16 @@ def bucket_policy_ro(bucket_arn, principal_arn):
     )
   )
 
-match policy:
-    case "public":
-        s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
-                                                        bucket=bucket.bucket,
-                                                        policy=bucket.bucket.apply(bucket_policy_public)
-                                                       )
-    case "readonly":
-        s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
-                                                        bucket=bucket.bucket,
-                                                        policy=bucket.bucket.apply(bucket_policy_ro)
-                                                       )
+if policy == "public":
+    s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
+                                                     bucket=bucket.bucket,
+                                                     policy=bucket.bucket.apply(bucket_policy_public)
+                                                    )
+elif policy == "readonly":
+    s3bucket_policy_resource = minio.S3BucketPolicy("s3bucketPolicyResource",
+                                                     bucket=bucket.bucket,
+                                                     policy=bucket.bucket.apply(bucket_policy_ro)
+                                                    )
 
 iam_policy = minio.IamPolicy("minio-iam-policy",
                              name=f"{serviceNamespace}-{serviceName}",

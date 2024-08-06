@@ -12,7 +12,6 @@ config = pulumi.Config()
 serviceName = config.require("Name")
 serviceNamespace = config.require("Namespace")
 releaseName = config.require("ReleaseName")
-acl = config.require("ACL")
 
 secret_labels = {
   "epinio.io/configuration": "true",
@@ -25,7 +24,7 @@ secret_labels = {
 
 user = minio.IamUser(f"minio-iam-user", name=f"{serviceNamespace}-{serviceName}", force_destroy=True)
 
-bucket = minio.S3Bucket(f"minio-s3-bucket", bucket=f"{serviceNamespace}-{releaseName}", acl=acl)
+bucket = minio.S3Bucket(f"minio-s3-bucket", bucket=f"{serviceNamespace}-{releaseName}")
 
 pulumi.export("bucket_arn",bucket.arn)
 

@@ -5,7 +5,7 @@ runtime:
     virtualenv: venv
 description: A minimal Minio Python Pulumi program
 config:
-  acl: ""
+  policy: ""
   pulumi:tags:
     value:
       pulumi:template: ""

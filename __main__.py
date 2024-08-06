@@ -52,8 +52,8 @@ def iam_user_policy(bucket_arn, principal_arn):
     )
   )
 
-def bucket_policy_public(bucket_arn, principal_arn):
-  return pulumi.Output.all(bucket_arn, principal_arn).apply(
+def bucket_policy_public(bucket_arn):
+  return pulumi.Output.all(bucket_arn).apply(
     lambda args: json.dumps(
       {
         "Version":"2012-10-17",
@@ -68,7 +68,7 @@ def bucket_policy_public(bucket_arn, principal_arn):
                 "s3:PutObject", 
                 "s3:DeleteObject"
             ],
-            "Principal": args[1],
+            "Principal": "*",
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"

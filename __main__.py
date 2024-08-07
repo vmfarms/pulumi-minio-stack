@@ -41,7 +41,7 @@ def iam_user_policy(bucket_arn, principal_arn):
             "Action": [
               "s3:*",
             ],
-            "Principal": args[1],
+            "Principal": principal_arn,
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"

@@ -29,9 +29,8 @@ bucket = minio.S3Bucket(f"minio-s3-bucket", bucket=f"{serviceNamespace}-{release
 
 pulumi.export("bucket_arn",bucket.arn)
 
-def iam_user_policy(bucket_arn):
-  print(pulumi.Output) 
-  return pulumi.Output.all(bucket_arn).apply(
+def iam_user_policy(bucket_arn, principal_arn):
+  return pulumi.Output.all(bucket_arn, principal_arn).apply(
     lambda args: json.dumps(
       {
         "Version":"2012-10-17",
@@ -42,7 +41,7 @@ def iam_user_policy(bucket_arn):
             "Action": [
               "s3:*",
             ],
-            "Principal": "*",
+            "Principal": args[1],
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"
@@ -80,8 +79,8 @@ def bucket_policy_public(bucket_arn):
     )
   )
 
-def bucket_policy_ro(bucket_arn, principal_arn):
-  return pulumi.Output.all(bucket_arn, principal_arn).apply(
+def bucket_policy_ro(bucket_arn):
+  return pulumi.Output.all(bucket_arn).apply(
     lambda args: json.dumps(
       {
         "Version":"2012-10-17",
@@ -94,7 +93,7 @@ def bucket_policy_ro(bucket_arn, principal_arn):
                 "s3:List*",
                 "s3:Describe*",
             ],
-            "Principal": args[1],
+            "Principal": "*",
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"
@@ -116,9 +115,14 @@ elif policy == "readonly":
                                                      policy=bucket.bucket.apply(bucket_policy_ro)
                                                     )
 
+service_account = minio.IamServiceAccount("service-account",
+                                           target_user=user.name,
+                                           policy=bucket.arn.apply(iam_user_policy)
+                                          )
+
 iam_policy = minio.IamPolicy("minio-iam-policy",
                              name=f"{serviceNamespace}-{serviceName}",
-                             policy=bucket.arn.apply(iam_user_policy)
+                             policy=bucket.arn.apply(iam_user_policy(service_account.principal_arn))
                             )
 
 iam_user_policy_attachment = minio.IamUserPolicyAttachment("minio-user-policy",
@@ -126,10 +130,6 @@ iam_user_policy_attachment = minio.IamUserPolicyAttachment("minio-user-policy",
                                                             policy_name=iam_policy.name
                                                            )
 
-service_account = minio.IamServiceAccount("service-account",
-                                           target_user=user.name,
-                                           policy=bucket.arn.apply(iam_user_policy)
-                                          )
 
 service_account_secret = Secret("service-account-secret",
                                 metadata=ObjectMetaArgs(

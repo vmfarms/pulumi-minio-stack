@@ -5,6 +5,7 @@ runtime:
     virtualenv: venv
 description: A minimal Minio Python Pulumi program
 config:
+  policy: ""
   pulumi:tags:
     value:
       pulumi:template: ""

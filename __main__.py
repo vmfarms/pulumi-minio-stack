@@ -122,7 +122,7 @@ service_account = minio.IamServiceAccount("service-account",
 
 iam_policy = minio.IamPolicy("minio-iam-policy",
                              name=f"{serviceNamespace}-{serviceName}",
-                             policy=bucket.arn.apply(iam_user_policy(service_account.principal_arn))
+                             policy=bucket.arn.apply(iam_user_policy(service_account.id))
                             )
 
 iam_user_policy_attachment = minio.IamUserPolicyAttachment("minio-user-policy",

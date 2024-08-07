@@ -29,8 +29,9 @@ bucket = minio.S3Bucket(f"minio-s3-bucket", bucket=f"{serviceNamespace}-{release
 
 pulumi.export("bucket_arn",bucket.arn)
 
-def iam_user_policy(bucket_arn, principal_arn):
-  return pulumi.Output.all(bucket_arn, principal_arn).apply(
+def iam_user_policy(bucket_arn):
+  print(pulumi.Output) 
+  return pulumi.Output.all(bucket_arn).apply(
     lambda args: json.dumps(
       {
         "Version":"2012-10-17",
@@ -41,7 +42,7 @@ def iam_user_policy(bucket_arn, principal_arn):
             "Action": [
               "s3:*",
             ],
-            "Principal": args[1],
+            "Principal": "*",
             "Resource": [
               f"arn:aws:s3:::{args[0]}",
               f"arn:aws:s3:::{args[0]}/*"
